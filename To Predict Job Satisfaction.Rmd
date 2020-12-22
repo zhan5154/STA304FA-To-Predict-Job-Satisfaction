@@ -1,0 +1,369 @@
+---
+title: "To Predict if a Person is Satisfied with His or Her Job"
+author: "Yifei Zhang 1004290572"
+date: "15/12/2020"
+output:
+  pdf_document:
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+data <-read.csv("/Users/zhangyf/Desktop/STA304 Final/gss.csv", header = TRUE)
+```
+
+
+## To Predict if a Person is Satisfied with His or Her Job
+
+# Yifei Zhang
+
+# 15/12/2020
+
+Code and data supporting this analysis is available at:
+\newline
+https://github.com/zhan5154/STA304FA-To-Predict-Job-Satisfaction
+
+## Abstract
+
+The goal of study was to find some potential factors that could be used to predict whether a person was satisfied with his or her job, with the ultimate goal of utilizing this study to improve working ethics and social welfare. The key methodologies employed were logistic regression with multiple independent variables and propensity score matching, with the main software used being R. The conclusion drawn from analysis was people who had higher income, who have not faced competition with their colleagues, who were females, who had more weeks being employed in the past 12 months, who had jobs matched with their fields of study, and who were married tended to have greater chance of being satisfied with their jobs than their respective base groups, and whether a person's education matched his or her job had a positive causal relationship with job satisfaction. Overall, as all of the estimators but one were statistically significant, the results were useful and contributed to the vital goal of benefiting the society that people could use the study to evaluate their mental state at work and companies could use the study to improve job satisfaction by adjusting policies related to those factors.
+
+## Keyword
+
+Logistic Regression, Propensity Score, Causal Inference, Observational Study, Job Satisfaction, Education-Job Match
+
+## Introduction
+
+The topic surrounding job satisfaction was understandably passionate as it had far-reaching implications for society and all humankind. Job satisfaction was used to describe an employee's perception toward how well his or her job provided the things that he or her thought were important. On individual level, job satisfaction could help people to keep a good mental stage at work and thus facilitate the formation of organizational commitment which would motivate people to work harder and treat themselves as a part of the organization. In other words, people who were satisfied with their jobs would become more productive and efficient, and contribute more in general to the interest of organization. On business level, job satisfaction could also help organization to reduce turnover that happy employees stayed put ( Graham Schwab, 2019), and also enabled organizations to win public acknowledge. Therefore, job satisfaction played all-important role in society.
+
+
+The goal of the study was that the society and organizations could use the study to increase welfare by finding some potential factors that were related to job satisfaction and making some adjustment according to those factors. For example, if the study found that the amount of time an employee spent on outdoor activity everyday had a positive relationship with the possibility of being satisfied with his job, a company could give its employees more free time to do outdoor activity in order to increase the probability of job satisfaction. Another example was that a company could utilize the study to keep track employees' mental stages in order to offer necessary help. If smoking frequency had negative relationship with the possibility of being satisfied with jobs, a company could monitor employees who smoked in unusual high frequency to determine if they needed mental consultant. 
+
+Statistical analysis was increasingly important in analyzing social issues. The study was designed to use logistic regression with multiple independent variables to find some factors to predict the probability of job satisfaction. Being more accessible and credible than experimental design data, observational data was the main source of the data employed by the study. The logistic regression results would demonstrate the relationships between different factors and job satisfaction, the contribution of each factor to job satisfaction, and the strength and significance of each relationship. The factors that this study would examine in regression analysis to predict the possibility of job satisfaction were income, appearance of competition in work, number of weeks employed, match between job and education, sex, and marry status.
+
+In addition, propensity score matching and causal inference analysis would be used to find if a specific factor had a causal relationship with job satisfaction. Propensity score matching was first introduced by Rosenbaum and Rubin in 1983 (Arane Thavaneswaran & Lisa Lix, 2008) and has become more and more prevalent in recent years. Ability to make causal inference in this study was significant from both social and individual perspectives. In this study propensity score matching would be used to discern if there was a causal link between job satisfaction and the match between job and education. Whether an employee's job has been matched with his field of education was crucial in determining job satisfaction. Education-job mismatches were found, in general, to decrease an employee's probability of being satisfied with his job (SAM, Vichet,2018), and would lead to high rates of absenteeism and turnover. Therefore, ability to draw a clear causal inference between job satisfaction and education-job match would contribute to the goal of the study to benefit society.
+
+A logistic regression with multiple independent variables would be performed to reveal the relationship between job satisfaction and six factors, after which propensity score matching would be applied to make inference on the causal link between job satisfaction and whether a person's education matched his or her field of education. In the DATA section, data source and variables selected would be presented and elaborated. In the METHDOLOGY section, model construction, propensity score matching rationale, and model diagnostics would be demonstrated. The results of regression and propensity score matching would be shown in RESULT section. Lastly, DISCUSSION section would cover the overall conclusion, explanations of result, and weaknesses and next steps.
+
+
+## Data
+
+The data was collected from General Social Survey, cycle 30: 2016: Canadians at Work and Home. The target population included all people who were 15 years old or older in Canada, excluding residents in Yukon, Northwest Territories and Nunavut, as well as full-time residents of institutions. The survey frame was comprised of two parts: lists of telephone numbers in use available to Statistic Canada and The Address Register. The target sample size was 20,000, with the actual number of response being 19,609 and overall response rate being 50.8%. 
+
+The survey used stratified sampling and simple random sampling without replacement to collect and process data. Each of the ten provinces was divided into strata according to geographic areas, and then every record in the frame was allocated to a strata within its province, after which a simple random sample without replacement was performed in each stratum.
+
+The survey used self-completed questionnaire (EQ) and computer assisted telephone interviews (CATI) to collect data, and there were few methods used to address the issue of non-response. For example, people who refused to participate were re-contacted up to two times and were educated the significance of the survey in order to encourage participation. Also, when the time of interview for a respondent was not convenient, a call back would be arranged. When there was no one home, multiple call backs would be made.
+
+The survey had some weaknesses and strengths generally. Some weaknesses included non-sampling errors caused by partial non-response and full non-response, and unavoidable sampling errors, which would be demonstrated in detail in the DISCUSSION section. The first strength the study had was credibility and reliability as it aimed to collect observational data rather than experimental design data. The second strength the study had was comprehensiveness. It included all kinds of variables available to be used ranging from demographic features to sociable attitudes.
+
+\begin{center}
+The summary of the variables that were used in predicting job satisfaction was shown below:
+\end{center}
+
+Variable Name | Type | Meaning 
+------|---|--------------|
+job_satisfaction | binary | whether a person was satisfied with his job
+income | categorical | a person's income
+competition | binary | whether a person has faced competition in work
+weeks_employed | numerical | number of weeks a person was employed in past 12 months
+match_JobandEducation | binary | whether job matched a person's field of study
+sex | binary | a person's gender
+marry | binary | whether a personal has married
+
+To elaborate these variables in detail:
+
+The response variable indicated whether a person was satisfied with his job, with the response 1 being "satisfied" and 0 being "not satisfied". In the data cleaning process, responses "Very Satisfied" and "Satisfied" were classified as "satisfied", with all other responses being classified as "not satisfied". Subjectivity in classification was the main issue here, which would result in biased estimation. For example, people would have different interpretation of satisfaction and non-satisfaction. It would be demonstrated in detail in Weakness Section.
+
+Income was divided into three groups "below 50,000", "between 50,000 and 100,000" and "above 10,000" to indicate a person's income before tax. An alternative of this variable was family income before tax, but it was not as relevant to personal job satisfaction as personal income, so personal income was selected instead of family income.
+
+Another predictor of job satisfaction was whether or not a person has faced or received competition from his colleagues, with response 1 representing "received" and 0 representing "not received".  In order to clean data to facilitate analysis, responses including "Always", "Often", and "Sometimes" were treated as having received competition, with all other responses being treated as not having received competition. The estimated coefficient was expected to be negative because competition would decrease people's utility at work and thus had a negative relationship with the possibility of being satisfied with their jobs.
+
+Number of weeks employed could also be used to explain job satisfaction, which was a numerical variable in the model. It indicated the number of weeks a person has been employed in the past 12 months. The estimated coefficient was expected to be positive because the number of weeks employed could be used to demonstrate a person's attitude and willingness toward going to work. 
+
+In addition, whether a person's job has matched with his or her education field was important in determining job satisfaction, with response 1 representing "matched" and 0 being "mismatched". According to a research on role of education and occupational match on job satisfaction (Hyungjo Hur  Julie A. Maurer  Joshua Hawley, 2019), a mismatched person was less likely to be satisfied with his job than a matched person, so the estimated coefficient of this variable was expected to be positive.
+
+Besides, research on gender difference (Miao, Y., Li, L. & Bian, Y, 2017) showed that women tended to show more overall job satisfaction than males, which was the reason why gender was included in analysis to predict job satisfaction. 
+
+Lastly, whether or not a person has ever married played vital role in predicting the possibility of job satisfaction: people married tended to be more likely to be satisfied with their job than people not married, according to a research on marry status (Mocheche Esther Kemunto, Raburu Pamela Adhiambo, Bosire Joseph, 2018). The estimated coefficient was expected to be positive in order to demonstrate this positive relationship.
+
+## Methodology
+
+The model was a logistic model with multiple independent variables, constructed in R, as the dependent variable yielded binary response and six predictors were used to predict the dependent variable. The model was shown below:
+
+\begin{center}
+$log(\frac{p}{1-p})$  = $\hat\beta_{0}$ + $\hat\beta_1income_{Less than 50,000}$ + $\hat\beta_2income_{More than 100,000}$ + $\hat\beta_3competition$ 
++ $\hat\beta_4weeks\_employed$ +$\hat\beta_5match\_JobandEducation$ + $\hat\beta_6sex$  + $\hat\beta_7marry$
+\end{center}
+
+There were several reasons why the model was constructed in this way. First of all, logistic regression was used because the dependent variable was binary and only had two possible outcomes: 1 (satisfied), and 0 (not satisfied). The independent variable income was divided into three sub-groups, in which the group "between 50,000 and 100,000" was the base group. Function "as.factor" would be applied to this categorical variable in order to perform analysis. Variables such as "competition", "match_JobandEducation", "sex", and "marry" were all binary because they only had two possible outcomes. For example, sex could only be male or female, and the response to "marry" could only be "married" or "not married". Please see DATA section for detailed explanation about variables.
+
+In order to test the effectiveness of the model above, an alternative model was built. The alternative model only contained three predictors: number of weeks employed in the past 12 months, whether a person's job was matched with the education field, and whether a person has been married. The alternative model was shown below:
+
+\begin{center}
+$log(\frac{p}{1-p})$  = $\hat\beta_{0}$ + $\hat\beta_1weeks\_employed$ +$\hat\beta_2match\_JobandEducation$ + $\hat\beta_3marry$
+\end{center}
+
+After the alternative model was constructed, AIC (Akaike information criterion), BIC (Bayesian information criterion), and AUC (Area Under the ROC Curve) were used to examine the effectiveness of two models. AIC and BIC were penalized likelihood criteria used to test the penalty of adding more predictors, and BIC test had higher standards and penalized sophisticated models more than AIC test. In general, the smaller the value of AIC or BIC the better the model. AUC was a way to test diagnostic accuracy, which indicated how high was the discriminated power of a test. In general, a good model would have AUC value being as least 0.5, and the higher the value the better the model. 
+
+The The model, which contained all seven predictors, had smaller AIC and BIC values, and higher AUC values, and the alternative model, which only contained three predictors, had larger AIC and BIC values, and smaller AUC value. Therefore, the model was better than the alternative model.
+
+\newpage
+
+\begin{center}
+The summary of model diagnostics was shown below:
+\end{center}
+
+Model | AIC | BIC | AUC
+----- | ---- | ------ |-------
+the model | 5452.144 | 5507.355 | 0.624
+alternative model| 5484.207 | 5511.813 | 0.601
+
+
+```{r, include=FALSE}
+my <- glm(job_satisfaction~ as.factor(income) + competition + weeks_employed + match_JobandEducation + sex + marry, data = data, family = "binomial")
+summary(my)
+```
+
+```{r, include=FALSE}
+alternative_my <- glm(job_satisfaction~ + weeks_employed + match_JobandEducation + marry, data = data, family = "binomial")
+summary(alternative_my)
+```
+
+```{r, include=FALSE}
+AIC(my)
+AIC(alternative_my)
+BIC(my)
+BIC(alternative_my)
+```
+
+```{r, include=FALSE}
+
+library(ROCR)
+library(pROC)
+
+likelihood<-predict(my,type=c('response'))
+result_model<-ifelse(likelihood>=0.5,0,1)
+survey_result<-cbind(data,result_model)
+ROC<- roc(survey_result$job_satisfaction, likelihood)
+AUC <-auc(ROC)
+plot(ROC, auc.polygon=TRUE, print.auc = TRUE,asp = NA)
+
+likelihood_alt<-predict(alternative_my,type=c('response'))
+result_model_alt<-ifelse(likelihood_alt>=0.5,0,1)
+survey_result_alt<-cbind(data,result_model_alt)
+ROC_alt<- roc(survey_result_alt$job_satisfaction, likelihood_alt)
+AUC_alt <- auc(ROC_alt)
+plot(ROC_alt, auc.polygon=TRUE, print.auc = TRUE,asp = NA)
+```
+
+In order to explore more about the relationship between job satisfaction and its strong predictors, propensity score matching and causal inference analysis were used. The independent variable that would be tested causality using propensity score, which also could be called the treatment, was whether a person's job has matched with his educational area. The following steps were taken to conduct analysis:
+
+Propensity Score matching steps | description
+-----------| ------------------------------------------------
+step1 | Estimated propensity score where the treatment, match_JobandEducation, was the outcome. The model was: propensity_score <- glm(match_JobandEducation = income + sex + competition  + weeks_employed + marry)
+step2 | Added propensity score to dataset
+step3 | Found the match between treated and untreated person. Treated person was the one whose job has matched the education field. Untreated person was the one whose job has not matched with the education field.
+step4 | Reduced dataset to only matched person
+step5 | Evaluated the result by performing new regression analysis using new dataset
+
+If the estimated coefficient of the variable match_JobandEducation was statistically significant in the model constructed in step 5, a causal relationship between job satisfaction and whether a person's job has matched with his educational field could be inferred.
+
+```{r,include = FALSE}
+# calculate the probability of a peron's job is mathched with a person's education
+propensity_score <- glm(match_JobandEducation ~ as.factor(income) + sex + competition  + weeks_employed + marry, family = binomial, data = data)
+```
+
+```{r, include = FALSE}
+# add propensity score to data set
+library(tidyverse)
+library(broom)
+data <- 
+  augment(propensity_score, 
+          data = data,
+          type.predict = "response") %>% 
+  dplyr::select(-.resid, -.std.resid, -.hat, -.sigma, -.cooksd) 
+```
+
+```{r, include = FALSE}
+data <- data %>% arrange(.fitted, match_JobandEducation)
+```
+
+```{r, include=FALSE}
+data$treated <- 
+  if_else(data$match_JobandEducation == 0, 0, 1)
+data$treated <- 
+  as.integer(data$treated)
+matches <- arm::matching(z = data$treated, 
+                         score = data$.fitted)
+data <- cbind(data, matches)
+```
+
+```{r,include=FALSE}
+data_matched <- 
+data %>% 
+  filter(match.ind != 0) %>% 
+  dplyr::select(-match.ind, -pairs, -treated)
+
+head(data_matched)
+```
+
+```{r, include=FALSE}
+propensity_score_regression <- glm(job_satisfaction~ as.factor(income) + competition + weeks_employed + match_JobandEducation + sex+ marry, data = data_matched, family = "binomial")
+
+huxtable::huxreg(propensity_score_regression)
+```
+
+
+## Result
+In previous sections, a logistic regression with multiple independent variables was performed, after which a propensity score matching was used to find the causal link between whether a person's job has matched his or field of education and job satisfaction.
+
+The summary of the logistic regression with six independent variables was shown below:
+
+Predictor | Estimated Coefficient | P-value
+----------|-----------|----- | --------|
+Intercept | 1.4452 | < 0.001
+income(Less than 5000) | -0.1590 | 0.0452
+income(More than 100,000) | 0.3863 | 0.0030
+competition | -0.3524 | < 0.001
+weeks_employed | 0.0007 | 0.8425
+match_JobandEducation | 0.6661 | <0.001
+sex | -0.1575 | 0.0294
+marry | 0.3212 | < 0.001
+
+The estimated intercept was 1.4452, which meant a female who has income between 50,000 and 100,000, has not received competition from his colleagues, had 0 weeks being employed in the past 12 months, had a education degree not matched with his job, and has not married had log odd of 1.4452 (or a probability of 0.8093) to be satisfied with his job. The P-value for this estimator was very small, which was less than 0.001.
+
+
+The estimated coefficient of income (less than 5000) was -0.1590. It meant that a person who has income less than 5000 was expected to have 0.1590 lower log odds of being satisfied with his job on average than a person who had income between 50,000 and 100,000, holding all other things equal. The P-value for this result was 0.0452.
+
+The estimated coefficient of income (more than 100,000) was 0.3863. It meant that a person who had income more than 100,000 was expected to have 0.3863 higher log odds of being satisfied with his job on average than a person who had income between 50,000 and 100,000, holding all other things equal. The P-value for this result was 0.0030.
+
+The estimated coefficient of competition was -0.3524. It meant that a person who has received or faced competition from his colleagues was expected to have 0.3524 lower log odds of being satisfied with his job on average than a person who has not received or faced competition from his colleagues, holding all other things equal. The P-value for this result was very small, which was less than 0.001.
+
+The estimated coefficient of number of weeks employed was 0.0007. It meant that if a person worked one more week in the past 12 months, he was expected to have 0.0007 higher log odds of being satisfied with his job on average, holding all other things equal. The P-value for this result was very big, which was 0.8425.
+
+The estimated coefficient of the variable indicating whether a person's education has matched with his job was 0.6661. It meant that a person whose job has matched with his educational field was expected to have 0.6661 higher log odds of being satisfied with his job on average than a person whose job has not matched with his educational field, holding all other things equal. The P-value for this result was very small, which was less than 0.001.
+
+The estimated coefficient of sex was -0.1575. It meant that a male was expected to have 0.1575 lower log odds of being satisfied with his job on average than a female, holding all other things equal. The P-value for this result was 0.0294.
+
+The estimated coefficient of marry was 0.3212. It meant that a married person was expected to have 0.3212 higher log odds of being satisfied with his job on average than an unmarried person, holding all other things equal. The P-value for this result was very small, which was less than 0.001.
+
+\begin{center}
+The summary of the model conducted using propensity score matching was shown below:
+\end{center}
+
+Predictor | Estimated Coefficient | P-value
+----------|-----------|----- | --------|
+Intercept | 1.532 | < 0.001
+income(Less than 5000) | -0.293 | < 0.05
+income(More than 100,000) | 0.681 | > 0.05
+competition | -0.291 | < 0.01
+weeks_employed | 0.000 | > 0.05
+match_JobandEducation | 0.743 | < 0.001
+sex | -0.215 | < 0.05
+marry | 0.365 | < 0.001
+
+The estimated coefficient of variable match_JobandEducation was 0.743 and the P-value was smaller than 0.001.
+
+## Discussion
+
+Based on the result, the possibility of a person being satisfied with his job had a positive relationship with the amount of income and the number of weeks employed in the past 12 months. People whose work matched their educational field, who married, who were females, and who have not received competition from their colleagues tented to have higher possibility of being satisfied with their job than their respective base groups. Except the predictor indicating number of weeks employed in the past 12 months, all variables were statistically significant at 5% significance level. The propensity score matching indicated the variable which represented education-job match had a positive estimated coefficient and a P-value smaller than 0.001 which suggested statistical significance. A positive causality could be inferred. Weaknesses included non-response issue in data collection, subjectivity issue in data cleaning and collecting, and variable selection and model construction issue. Some useful methods to address these issues were incentive and mode of contacts, partition and specialization of survey questions, and access to a better dataset and utilization of more advanced statistical tools. Overall, the results made sense and were useful in achieving the ultimate goal of increasing social welfare.
+
+Based on the results obtained from the logistic regression, several factors could be inferred to have some relationships with job satisfaction.
+
+\begin{center}
+The relationship between job satisfaction and its predictors were summarized below:
+\end{center}
+
+Predictor | relationship | significant or not
+----------|-----------|----------
+income | positive | statistically significant
+competition | negative | statistically significant
+weeks_employed | positive | not statistically significant
+match_JobandEducation | positive | statistically significant
+sex (= 1 if male) | negative | statistically significant
+marry | positive | statistically significant
+
+To elaborate these relationships in detail:
+
+First of all, according to the coefficient of two income groups, people with higher income tended to have greater possibility of being satisfied with their jobs, and the results were statistically significant at 5% significance level. 
+
+Also, according to the negative coefficient of the variable competition, people who has faced competition with their colleagues tended to have lower possibility of being satisfied with their job, which was statistically significant as P-value was smaller than 0.001. 
+
+Besides, according to the positive coefficient of the variable weeks_employed, people with more weeks being employed in the past 12 months tended to have greater possibility of being satisfied with their job. This result was not statistically significant because the p-value was 0.8425 which was bigger than 5% significance level. 
+
+In addition, according to the positive coefficient of the variable match_JobandEducation, people whose jobs matched with their education field tended to have greater possibility of being satisfied with their jobs. This result was statistically significant, as the P-value was smaller than 0.001. 
+
+Moreover, according to the negative coefficient of the variable sex, males tended to have smaller possibility of being satisfied with their job. This result was statistically significant.
+
+Lastly, according to the positive coefficient of the variable marry, married people tended to have greater chance of being satisfied with their job, which was statistically significant. 
+
+Also, after conducting propensity score matching with the variable match_JobandEducation, the coefficient of the variable match_JobandEducation was positive and statistically significant, as the P-value was smaller than 0.001. Therefore, a positive causality between job satisfaction and whether or not a person's job matched his educational field can be concluded: a match between job and education would lead to greater chance of being satisfied with job.
+
+The results made sense and fitted perfectly to the ultimate goal of the study. For example, after finding the negative relationship between the appearance of competition and job satisfaction, a company could assuage the competition between employees to increase the probability of job satisfaction and thus to form a good organizational culture. Also, the causal relationship between job satisfaction and education-job match could also be used by people when they were looking for jobs: if they would want to be satisfied with their job and to have greater utility at work, they could choose to find jobs that matched their education.
+
+\begin{center}
+The summary of weaknesses and potential solution was shown below: 
+\end{center}
+
+Weakness | Next Step (Solution)
+------------ | ------------
+Non-response in dataset | incentive and mode of contact
+Subjectivity in data collection and cleaning | partition and specialization of survey questions
+variable selection and model construction | better dataset and more advanced statistical tools
+
+
+The data, model, and methodology had several weaknesses:
+
+The first weakness was the low response rate, which was associated with the dataset itself. The overall response rate for the 2016 GSS was only 50.8%, even though several methods were used to deal with the non-response issue such as arranging call back time for inconvenient respondents. The overall low response rate could result in non-sampling error and increase sampling bias. Also, the 50.8% response rate could make the sample so small that it could not be representative. 
+
+The second weakness is the subjectivity associated with dataset itself and the process of data cleaning which might lead to overestimation or underestimation. The definition of job satisfaction was diverse and could be different to respondents, and it was hard to draw a clear line between satisfaction and non-satisfaction. Also because everyone had different expectation, the same utility in work might result in different degree of job satisfaction. In the data cleaning process, only answers "very satisfied" and "satisfied" were classified as being satisfied. The answer "Neither satisfied nor dissatisfied" was treated as not being satisfied in order to facilitate performing logistic regression, which indeed did not necessarily mean dissatisfaction. Therefore, in this case, the number of respondents who were dissatisfied with their job was overestimated. Due the issues mentioned above, the estimated results could be biased.
+
+The third weakness was the selection of independent variables and model construction. There could exist more relevant variables to predict job satisfaction which were not included in the model. For example, the amount of working time everyday might have strong relationship with job satisfaction but it was not used in constructing model. Also, logistic regression might not be the best analyzing methods, and more advanced model could be used. In terms of model diagnostic, improvement could also be made that, besides AIC and BIC, more sophisticated or alternative methods could be used to test the validity of the model.
+
+Several steps could be taken to improve analysis:
+
+To address the issue of bias caused by non-response, several techniques could be used such as incentive and mode of contact which was inferred by a study (Vera Toepoel & Matthias Schonlau, 2017). The method of incentive creation followed the rationale of reciprocation that people were more willing to response to a survey when some benefits or favors were offered. Some non-monetary incentives were also useful, which included donations and charity. In addition, decisions to participate in a survey also depended on the total number of contacts, the first contact time, and time interval between different contacts. Therefore, if some benefits were offered and the time was carefully arranged, the issue of non-response can be mitigated.
+
+To address the issue of overestimation and underestimation caused by subjectivity, partition and specialization of questions could be used in collecting data. To be more specific, instead of directly asking the degree of job satisfaction of each respondent, asking respondents' attitude toward components of overall job satisfaction was more appropriate such as the attitude toward managers, the attitude toward colleagues and the attitude toward the workload. Also, comparison was better than generalization. "Do you feel happier in high-pace working environment than a relaxing one?" was better than "What type of environment do you prefer?", which could help to address the issue of subjectivity in answering survey questions.
+
+To address the issue of selection of variables and construction of model, access to a better dataset and utilization of more sophisticated statistical tools could be useful. A better dataset could have more observations that could decrease the bias and more variables that could be used to construct a better model. For example, the Canadian General Social Survey (GSS) 2014, Cycle 28: Canadians’ Safety and Security (Victimization) could be used, from which the variable indicating whether or not a person has received discrimination in work had strong relationship with job satisfaction and could be used in the model. Also, some statistical tools such as AUC test and cross validation could help to examine the model. Other type of model such as multiple linear regression and Bayesian regression could also generate more accurate analysis.
+
+## Reference
+
+General Social Survey, cycle 30: 2016: Canadians at Work and Home
+https://sda-artsci-utoronto-ca.myaccess.library.utoronto.ca/cgi-bin/sda/hsda?harcsda4+gss30
+
+General Social Survey, Cycle 30: Canadians at Work and Home Public Use Microdata File Documentation and User’s Guide
+https://sda-artsci-utoronto-ca.myaccess.library.utoronto.ca/sdaweb/dli2/gss/gss30/gss30/more_doc/GSSC30ENgid.pdf
+
+Miao, Y., Li, L. & Bian, Y. Gender differences in job quality and job satisfaction among doctors in rural western China. BMC Health Serv Res 17, 848 (2017). https://doi.org/10.1186/s12913-017-2786-y
+
+Hyungjo Hur Julie A. Maurer  Joshua Hawley. The role of education, occupational match on job satisfaction in the behavioral and social science workforce.(2019)
+ https://doi.org/10.1002/hrdq.21343
+
+Mocheche Esther Kemunto, Raburu Pamela Adhiambo, Bosire Joseph (2018) Is Marital Status a Predictor of Job Satisfaction of Public Secondary School Teachers?
+http://article.sapub.org/10.5923.j.ijpbs.20180803.03.html#Ref
+
+Vera Toepoel & Matthias Schonlau (2017) Dealing with nonresponse: Strategies to increase participation and methods for postsurvey adjustments, Mathematical Population Studies, 24:2, 79-83, DOI: 10.1080/08898480.2017.1299988
+
+Graham Schwab(2019) 4 BENEFITS OF EMPLOYEE SATISFACTION IN THE WORKPLACE
+https://www.newbreedmarketing.com/blog/4-benefits-of-employee-satisfaction-in-the-workplace
+
+
+Arane Thavaneswaran & Lisa Lix(2008) Propensity Score Matching in Observational Studies
+https://www.umanitoba.ca/faculties/health_sciences/medicine/units/chs/departmental_units/mchp/protocol/media/propensity_score_matching.pdf
+
+Wickham et al., (2019). Welcome to the tidyverse. Journal of Open Source Software, 4(43), 1686, https://doi.org/10.21105/joss.01686
+
+David Robinson, Alex Hayes and Simon Couch (2020). broom: Convert Statistical Objects into Tidy Tibbles. R package version 0.7.0.
+https://CRAN.R-project.org/package=broom
+
+Sing T, Sander O, Beerenwinkel N, Lengauer T (2005). “ROCR: visualizing classifier performance in R.” _Bioinformatics_, *21*(20), 7881. 
+http://rocr.bioinf.mpi-sb.mpg.de
+
+Xavier Robin, Natacha Turck, Alexandre Hainard, Natalia Tiberti, Frédérique Lisacek , Jean-Charles Sanchez and Markus Müller (2011). pROC: an open-source package for R and S+ to analyze and compare ROC curves. BMC Bioinformatics,12, p. 77.  DOI: 10.1186/1471-2105-12-77
+http://www.biomedcentral.com/1471-2105/12/77/
+
+
